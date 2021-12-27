@@ -1,9 +1,12 @@
 <div class="card mx-4 my-4">
     <div class="card-header">
         <ul class="nav nav-pills card-header-pills">
+            <li class="nav-item mr-2" *ngIf = "!connected">
+                <input type="text" class="form-control" [(ngModel)] = "message.username" placeholder="Enter your name"/>
+            </li>
             <li class="nav-item mr-2">
                 <button class="btn btn-success" type="button" (click) = "connect()"
-                *ngIf = "!connected">Connect</button>
+                *ngIf = "!connected" [disabled] = "!message.username">Connect</button>
             </li>
             <li class="nav-item">
                 <button class="btn btn-warning" type="button" (click) = "disconnect()"
@@ -12,15 +15,30 @@
         </ul>
 
     </div>
-    <div class="card-body" style="overflow: scroll; height: 360px;" *ngIf = "connected">
-
+    <div #scrollChat [scrollTop] = "scrollChat.scrollHeight" class="card-body" style="overflow: scroll; height: 360px;" *ngIf = "connected">
+        <ul class = "list-group">
+            <li class="list-group-item list-group-item-light" *ngFor = "let message of messages">
+                <span *ngIf="message.type=='NEW_USER'" >
+                    {{message.date | date:'shortTime'}} - {{message.text}} <spam [ngStyle] = "{'color':message.color}">
+                        {{message.username}}
+                    </spam>
+                </span>
+                <span *ngIf="message.type=='MESSAGE'">
+                    {{message.date | date:'shortTime'}} - <spam [ngStyle] = "{'color':message.color}">
+                        {{message.username}}
+                    </spam> dice : <br> {{message.text}}
+                </span>
+            </li>
+        </ul>
     </div>
     <div class="card-footer" *ngIf = "connected">
         <form class="form-inline">
             <div class="form-group mx-3">
-                <input type="text" class="form-control" placeholder="type a message" name="text">
+                <input type="text" class="form-control" [(ngModel)] = "message.text" placeholder="type a message" name="text"
+                (keyup) = "typingEvent()">
             </div>
-            <button class="btn btn-primary" type="submit">Send</button>
+            <button class="btn btn-primary" type="submit" (click)="sendMessage()">Send</button>
         </form>
+        <div style="color: gray;">&nbsp;&nbsp;&nbsp;{{ typing }}</div>
     </div>
 </div>
